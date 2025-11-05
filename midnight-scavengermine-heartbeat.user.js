@@ -9,7 +9,7 @@
 // @noframes
 // @downloadURL  https://github.com/mintypool/m-s-m/raw/refs/heads/main/midnight-scavengermine-heartbeat.user.js
 // @updateURL    https://github.com/mintypool/m-s-m/raw/refs/heads/main/midnight-scavengermine-heartbeat.user.js
-// @updatecheck  1   //
+// @updatecheck  1
 // ==/UserScript==
 
 /*
