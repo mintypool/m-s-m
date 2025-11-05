@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ScavengerMineHeadless-ItsDave_ADA — 10-Minute Heartbeat
 // @namespace    ItsDave_ADA
-// @version      2.4.0a
+// @version      2.4.1
 // @description  Auto-starts and maintains ScavengerMine sessions for the Midnight Scavenger Hunt mining NIGHT.
 // @match        https://sm.midnight.gd/*
 // @run-at       document-idle
