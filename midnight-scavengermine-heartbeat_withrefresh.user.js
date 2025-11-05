@@ -53,7 +53,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
   const START_WAIT_LOOPS  = 16;          // ~8s
   const START_WAIT_STEPMS = 500;
   const RELOAD_GUARD_MS   = 60_000;      // 1 min reload guard
-  const REFRESH_INTERVAL_MS = 1 * 60_000; // 30 minutes; change this value as needed
+  const REFRESH_INTERVAL_MS = 30 * 60_000; // 30 minutes; change this value as needed
 
   let lastReloadAt = 0;
 
