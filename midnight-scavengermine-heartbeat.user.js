@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ScavengerMineHeadless-ItsDave_ADA — 10-Minute Heartbeat
 // @namespace    ItsDave_ADA
-// @version      2.4.0
+// @version      2.4.1
 // @description  Auto-starts and maintains ScavengerMine sessions for the Midnight Scavenger Hunt mining NIGHT.
 // @match        https://sm.midnight.gd/*
 // @run-at       document-idle
@@ -53,6 +53,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
   const START_WAIT_LOOPS  = 16;          // ~8s
   const START_WAIT_STEPMS = 500;
   const RELOAD_GUARD_MS   = 60_000;      // 1 min reload guard
+  const REFRESH_INTERVAL_MS = 30 * 60_000; // 30 minutes; change this value as needed
 
   let lastReloadAt = 0;
 
@@ -105,6 +106,10 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
       console.log(`${TAG} Reload guard active — skip.`);
       return;
     }
+    if (isSolving()) {
+      console.log(`${TAG} Challenge running — skipping reload.`);
+      return;
+    }
     console.log(`${TAG} Reloading — ${reason} @ ${new Date().toLocaleTimeString()}`);
     lastReloadAt = now();
     location.reload();
@@ -131,5 +136,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
   setTimeout(() => {
     heartbeat();
     setInterval(heartbeat, HEARTBEAT_MS);
+    console.log(`${TAG} Periodic refresh active — runs every ${REFRESH_INTERVAL_MS / 60_000} minutes.`);
+    setInterval(() => safeReload("periodic refresh"), REFRESH_INTERVAL_MS);
   }, BOOT_GRACE_MS);
 })();
