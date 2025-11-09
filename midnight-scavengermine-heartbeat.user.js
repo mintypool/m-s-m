@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ScavengerMineHeadless-ItsDave_ADA — 10-Minute Heartbeat
 // @namespace    ItsDave_ADA
-// @version      2.4.3
+// @version      2.4.4
 // @description  Auto-starts and maintains ScavengerMine sessions for the Midnight Scavenger Hunt mining NIGHT.
 // @match        https://sm.midnight.gd/*
 // @run-at       document-idle
@@ -32,19 +32,19 @@ participation even while away.
 🔍 CONTEXT
 The ScavengerMine site (https://sm.midnight.gd/) is a single-page app that can remain
 “running” while the UI silently stalls, leaving the miner active but unable to start
-new challenges without a manual refresh.  
+new challenges without a manual refresh.
 This script adds a lightweight self-healing mechanism — it reloads only when no
 challenge is running and the “Start” button is missing, ensuring uninterrupted and
 reliable mining uptime.
 
 ⚙️ REQUIREMENTS
-• Wallet must be connected before running.  
-• Requires the Tampermonkey extension (to run userscripts):  
-  🔗 https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en-GB&utm_source=ext_sidebar  
+• Wallet must be connected before running.
+• Requires the Tampermonkey extension (to run userscripts):
+  🔗 https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en-GB&utm_source=ext_sidebar
 • Works only on https://sm.midnight.gd/.
 
 ⚠️ DISCLAIMER
-Use at your own risk — no warranties or liability implied.  
+Use at your own risk — no warranties or liability implied.
 Intended solely to assist with maintaining uptime during the Midnight Scavenger Hunt.
 ------------------------------------------------------------------------------------
 */
@@ -63,7 +63,6 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
 
   let lastReloadAt = 0;
   let lastSubmittedAt = 0;
-  
 
   const $all = (sel) => Array.from(document.querySelectorAll(sel));
   const findBtn = (txt) =>
@@ -78,8 +77,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
   function isSolutionSubmitted() {
     const nodes = document.querySelectorAll("div, span, li, section");
     return Array.from(nodes).some(el => /solution submitted/i.test(el.textContent || ""));
-  }  
-    
+  }
 
     for (const row of rows) {
       const scope = row.closest("div") || row.parentElement || document.body;
@@ -159,9 +157,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
     } else {
       lastSubmittedAt = 0;
     }
-  }  
-
-  
+  }
 
   async function heartbeat() {
     const stop = findBtn("stop session");
