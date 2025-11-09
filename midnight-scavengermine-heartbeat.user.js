@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ScavengerMineHeadless-ItsDave_ADA — 10-Minute Heartbeat
 // @namespace    ItsDave_ADA
-// @version      2.4.5
+// @version      2.4.6
 // @description  Auto-starts and maintains ScavengerMine sessions for the Midnight Scavenger Hunt mining NIGHT.
 // @match        https://sm.midnight.gd/*
 // @run-at       document-idle
@@ -93,6 +93,11 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
     }
     console.log(`${TAG} Challenge appears active. Skipping.`);
     return true;
+  }
+
+  function isSolutionSubmitted() {
+    const nodes = document.querySelectorAll("div, span, li, section");
+    return Array.from(nodes).some(el => /solution submitted/i.test(el.textContent || ""));
   }
 
   async function tryStart() {
