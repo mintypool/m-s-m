@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ScavengerMineHeadless-ItsDave_ADA — 10-Minute Heartbeat
 // @namespace    ItsDave_ADA
-// @version      2.4.2
+// @version      2.4.3
 // @description  Auto-starts and maintains ScavengerMine sessions for the Midnight Scavenger Hunt mining NIGHT.
 // @match        https://sm.midnight.gd/*
 // @run-at       document-idle
@@ -21,6 +21,7 @@ Automatically maintains ScavengerMine uptime by checking every 10 minutes:
 • Does **not** reload while a challenge is running (“Finding a solution”).
 • Uses a 1-minute guard timer to prevent repeated reloads.
 • Designed to be **extremely lightweight**, running silently with minimal CPU impact.
+• Forces a page refresh when “Solution submitted” stays on screen longer than 10 s (prevents getting stuck after a challenge).
 
 💡 MOTIVATION
 Created after discovering my miner had continued running overnight but stopped
@@ -57,8 +58,12 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
   const START_WAIT_STEPMS = 500;
   const RELOAD_GUARD_MS   = 60_000;      // 1 min reload guard
   const REFRESH_INTERVAL_MS = 30 * 60_000; // 30 minutes; change this value as needed
+  const SUBMITTED_CHECK_MS   = 5000;      // every 5 s for submitted check
+  const SUBMITTED_TIMEOUT_MS = 10000;    // 10 s timeout for stuck submitted
 
   let lastReloadAt = 0;
+  let lastSubmittedAt = 0;
+  
 
   const $all = (sel) => Array.from(document.querySelectorAll(sel));
   const findBtn = (txt) =>
@@ -69,6 +74,12 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
     const nodes = document.querySelectorAll("div, span, li, section");
     const rows = Array.from(nodes).filter(el => /finding a solution/i.test(el.textContent || ""));
     if (rows.length === 0) return false;
+
+  function isSolutionSubmitted() {
+    const nodes = document.querySelectorAll("div, span, li, section");
+    return Array.from(nodes).some(el => /solution submitted/i.test(el.textContent || ""));
+  }  
+    
 
     for (const row of rows) {
       const scope = row.closest("div") || row.parentElement || document.body;
@@ -118,6 +129,40 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
     location.reload();
   }
 
+  function safeReload(reason) {
+    if (now() - lastReloadAt < RELOAD_GUARD_MS) {
+      console.log(`${TAG} Reload guard active — skip.`);
+      return;
+    }
+    if (isSolving()) {
+      console.log(`${TAG} Challenge running — skipping reload.`);
+      return;
+    }
+    console.log(`${TAG} Reloading — ${reason} @ ${new Date().toLocaleTimeString()}`);
+    lastReloadAt = now();
+    location.reload();
+  }
+
+  function submittedCheck() {
+    if (isSolving()) {
+      lastSubmittedAt = 0;
+      return;
+    }
+
+    if (isSolutionSubmitted()) {
+      if (lastSubmittedAt === 0) {
+        lastSubmittedAt = now();
+        console.log(`${TAG} Solution submitted detected. Monitoring for timeout.`);
+      } else if (now() - lastSubmittedAt > SUBMITTED_TIMEOUT_MS) {
+        safeReload("solution submitted timeout");
+      }
+    } else {
+      lastSubmittedAt = 0;
+    }
+  }  
+
+  
+
   async function heartbeat() {
     const stop = findBtn("stop session");
     if (stop) {
@@ -141,5 +186,7 @@ Intended solely to assist with maintaining uptime during the Midnight Scavenger 
     setInterval(heartbeat, HEARTBEAT_MS);
     console.log(`${TAG} Periodic refresh active — runs every ${REFRESH_INTERVAL_MS / 60_000} minutes.`);
     setInterval(() => safeReload("periodic refresh"), REFRESH_INTERVAL_MS);
+    console.log(`${TAG} Solution submitted monitor active — checks every ${SUBMITTED_CHECK_MS / 1000} seconds.`);
+    setInterval(submittedCheck, SUBMITTED_CHECK_MS);
   }, BOOT_GRACE_MS);
 })();
